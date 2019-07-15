@@ -1,0 +1,154 @@
+{
+  "swagger": "2.0",
+  "paths": {
+    "/api/v1/database/update": {
+      "post": {
+        "description": "Updates virus databases using freshclam",
+        "tags": [
+          "databases"
+        ],
+        "summary": "Updates virus definition databases",
+        "operationId": "updateDatabases",
+        "responses": {}
+      }
+    },
+    "/api/v1/file/base64": {
+      "post": {
+        "description": "Uploads a base64 encoded file in a JSON formatted request body. Returns checksum and ID on successful file transfer.",
+        "consumes": [
+          "application/json"
+        ],
+        "tags": [
+          "files"
+        ],
+        "summary": "Uploads a base64 encoded file",
+        "operationId": "uploadFileBase64",
+        "parameters": [
+          {
+            "description": "The file to upload. Specifying a name is optional, but recommended.",
+            "name": "file",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "base64": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                }
+              },
+              "example": {
+                "base64": "WDVPIVAlQEFQWzRcUFpYNTQoUF4pN0NDKTd9JEVJQ0FSLVNUQU5EQVJELUFOVElWSVJVUy1URVNULUZJTEUhJEgrSCoK",
+                "name": "eicar.txt"
+              }
+            }
+          },
+          {
+            "type": "boolean",
+            "example": {
+              "scan": true
+            },
+            "description": "Scan instantly after upload",
+            "name": "scan",
+            "in": "query"
+          }
+        ],
+        "responses": {}
+      }
+    },
+    "/api/v1/file/form": {
+      "post": {
+        "description": "Uploads a file using multipart/form-data. Returns checksum and ID on successful file transfer.",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "tags": [
+          "files"
+        ],
+        "summary": "Uploads a file using form-data",
+        "operationId": "uploadFileForm",
+        "parameters": [
+          {
+            "type": "file",
+            "description": "The file to upload",
+            "name": "file",
+            "in": "formData"
+          },
+          {
+            "type": "boolean",
+            "example": {
+              "scan": true
+            },
+            "description": "Scan instantly after upload",
+            "name": "scan",
+            "in": "query"
+          }
+        ],
+        "responses": {}
+      }
+    },
+    "/api/v1/file/{id}": {
+      "delete": {
+        "description": "Deletes an unscanned file.",
+        "tags": [
+          "files"
+        ],
+        "summary": "Deletes a file",
+        "operationId": "deleteFile",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "File ID (UUID)",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {}
+      }
+    },
+    "/api/v1/health/ready": {
+      "get": {
+        "description": "Checks if the ClamAV daemon is ready and responding.",
+        "tags": [
+          "health"
+        ],
+        "summary": "Readyness probe",
+        "operationId": "healthReady",
+        "responses": {}
+      }
+    },
+    "/api/v1/scan/all": {
+      "get": {
+        "description": "Scans all unscanned files. By default all files will be deleted after being scanned.",
+        "tags": [
+          "scanning"
+        ],
+        "summary": "Scans all files",
+        "operationId": "scanAllFiles",
+        "responses": {}
+      }
+    },
+    "/api/v1/scan/{id}": {
+      "get": {
+        "description": "Scans a file, identified by ID. By default, the file will be deleted after being scanned.",
+        "tags": [
+          "scanning"
+        ],
+        "summary": "Scans a single file",
+        "operationId": "scanFile",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "File ID (UUID)",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {}
+      }
+    }
+  }
+}
