@@ -134,25 +134,30 @@ func GenerateChecksum(file string) string {
 func ScanPath(path string) (int, string) {
 	maxTimeout := "180"
 
+	Log(3, "Scanning path: "+path)
+
 	// Execute clamscan
 	cmd := exec.Command("timeout", "-t", maxTimeout, "clamdscan", path)
 	stdout, err := cmd.Output()
 
 	if err != nil {
 		if err.Error() == "exit status 1" { // File is infected
+			Log(3, "Found infected file(s)!")
 			return 1, string(stdout)
 		}
 
 		if err.Error() == "exit status 2" {
-			Log(4, err.Error())
+			Log(4, "Unable to scan path: "+err.Error())
 			return 2, ""
 		}
 
 		if (err.Error() == "exit status 124") || (err.Error() == "exit status 127") {
-			Log(4, err.Error())
+			Log(4, "Unable to scan path: "+err.Error())
 			return 3, ""
 		}
 	}
+
+	Log(3, "File(s) clean")
 
 	return 0, ""
 }
@@ -233,11 +238,11 @@ func UploadFileBase64(w http.ResponseWriter, r *http.Request) {
 		if scanCode == 1 {
 			output.Infected = true
 			output.Output = scanOut
-			os.Remove(path)
 		} else if scanCode > 1 {
 			http.Error(w, "Unable to scan file", http.StatusBadRequest)
 			return
 		}
+		os.Remove(path)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -258,8 +263,7 @@ func UploadFileForm(w http.ResponseWriter, r *http.Request) {
 	r.ParseMultipartForm(10 << 20)
 	file, handler, err := r.FormFile("file")
 	if err != nil {
-		fmt.Println("Error Retrieving the File")
-		fmt.Println(err)
+		Log(1, "Error retrieving file: "+err.Error())
 		return
 	}
 	defer file.Close()
@@ -270,7 +274,7 @@ func UploadFileForm(w http.ResponseWriter, r *http.Request) {
 
 	fileContent, err := ioutil.ReadAll(file)
 	if err != nil {
-		fmt.Println(err)
+		Log(1, "Error reading file content: "+err.Error())
 	}
 
 	Log(3, "Saving file: "+path)
@@ -308,11 +312,11 @@ func UploadFileForm(w http.ResponseWriter, r *http.Request) {
 		if scanCode == 1 {
 			output.Infected = true
 			output.Output = scanOut
-			os.Remove(path)
 		} else if scanCode > 1 {
 			http.Error(w, "Unable to scan file", http.StatusBadRequest)
 			return
 		}
+		os.Remove(path)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -335,8 +339,6 @@ func ScanFile(w http.ResponseWriter, r *http.Request) {
 	if params["id"] == "all" {
 		path = folder
 	}
-
-	Log(3, "Scanning path: "+path)
 
 	checksum := ""
 	if params["id"] != "all" {
@@ -366,12 +368,6 @@ func ScanFile(w http.ResponseWriter, r *http.Request) {
 	if scanCode == 3 {
 		http.Error(w, "Clamscan execution failed", http.StatusBadRequest)
 		return
-	}
-
-	if output.Infected == false {
-		Log(3, "File(s) clean")
-	} else {
-		Log(3, "Found infected file(s)!")
 	}
 
 	// Get filename from metadata

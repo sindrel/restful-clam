@@ -7,7 +7,7 @@ if [[ ! -v NO_FRESHCLAM_ON_STARTUP ]]; then
 fi
 
 # Run freshclam as daemon, check for updates twice a day
-freshclam -d -c 2 && clamd &
+freshclam -d -c 2 &
 
 # Start ClamAV daemon
 clamd &
