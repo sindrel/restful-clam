@@ -434,7 +434,7 @@ func HealthCheckReadynessProbe(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.Error(w, "Health check failed: "+scanOut, http.StatusBadRequest)
+	http.Error(w, "Not ready "+scanOut, http.StatusBadRequest)
 	return
 }
 

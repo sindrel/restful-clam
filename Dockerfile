@@ -28,6 +28,7 @@ COPY --from=builder /go/bin/restful-clam /go/bin/restful-clam
 COPY entrypoint.sh /
 COPY swaggerui/ /static/swaggerui
 COPY clamav/clamd.conf /etc/clamav/clamd.conf
+COPY clamav/freshclam.conf /etc/clamav/freshclam.conf
 COPY eicar.txt /tmp/eicar.txt
 
 RUN mkdir -p $DATA_DIR/files
